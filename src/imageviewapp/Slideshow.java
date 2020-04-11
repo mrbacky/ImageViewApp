@@ -1,7 +1,7 @@
 package imageviewapp;
 
 import java.util.List;
-import javafx.application.Platform;
+import java.util.concurrent.TimeUnit;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -24,13 +24,16 @@ public class Slideshow implements Runnable {
     @Override
     public void run() {
         if (!images.isEmpty()) {
-            while (!Thread.currentThread().isInterrupted()) {
-                Platform.runLater(() -> {
+            try {
+                while (true) {
                     imageView.setImage(images.get(index));
                     index = (index + 1) % images.size();
-                });
+                    TimeUnit.SECONDS.sleep(DELAY);
+                    //When sleeping, the thread goes to the blocking stage.
+                }
+            } catch (InterruptedException ex) {
+                System.out.println("The slide show was stopped.");
             }
         }
     }
-
 }

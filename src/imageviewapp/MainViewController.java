@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package imageviewapp;
 
 import java.io.File;
@@ -12,6 +7,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -75,13 +73,28 @@ public class MainViewController implements Initializable {
     private void handleBtnStartSlideshow(ActionEvent event) {
         Runnable slideshow = new Slideshow(imageView, images);
         executor = Executors.newSingleThreadExecutor();
+        //Use ExecutorService to create a thread.
         executor.submit(slideshow);
+        //Add the task to the thread.
     }
 
     @FXML
     private void handleBtnStopSlideshow(ActionEvent event) {
-        executor.shutdown();
+        try {
+            executor.shutdown();
+            //Waits for thread to finish and then shuts down.
+            //However, it will never finish, because it is an infinite loop.
+            executor.awaitTermination(1, TimeUnit.SECONDS);
+            //Wait for 3 seconds and kills the thread.            
+        } catch (InterruptedException ex) {
+            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
 
+        } finally {
+            if (!executor.isTerminated()) {
+                executor.shutdownNow();
+                //Check if the thread has been terminated and if it hasn't then force it to.
+            }
+        }
     }
 
     @FXML
