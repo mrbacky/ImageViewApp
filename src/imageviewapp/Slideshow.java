@@ -33,7 +33,7 @@ public class Slideshow implements Runnable {
     public void run() {
         if (!images.isEmpty()) {
             try {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     Platform.runLater(() -> {
                         imageView.setImage(images.get(index));
                         lblFilename.setText(filenames.get(index));
@@ -44,7 +44,6 @@ public class Slideshow implements Runnable {
                     //When sleeping, the thread goes to the blocking stage.
                 }
             } catch (InterruptedException ex) {
-                Logger.getLogger(Slideshow.class.getName()).log(Level.SEVERE, null, ex);
                 System.out.println("The slide show was stopped.");
             }
         }
