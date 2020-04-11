@@ -15,10 +15,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 /**
@@ -38,13 +39,16 @@ public class MainViewController implements Initializable {
     private Button btnNext;
     @FXML
     private ImageView imageView;
-
-    private final List<Image> images = new ArrayList<>();
-    private int currentImageIndex = 0;
     @FXML
     private Button btnNext1;
     @FXML
     private Button btnNext2;
+    @FXML
+    private Label lblFilename;
+
+    private final List<Image> images = new ArrayList<>();
+    private final List<String> filenames = new ArrayList<>();
+    private int currentImageIndex = 0;
     private ExecutorService executor;
 
     /**
@@ -64,14 +68,15 @@ public class MainViewController implements Initializable {
     }
 
     private void displayImage() {
-        if (!images.isEmpty()) {
+        if (!images.isEmpty() || filenames.isEmpty()) {
+            lblFilename.setText(filenames.get(currentImageIndex));
             imageView.setImage(images.get(currentImageIndex));
         }
     }
 
     @FXML
     private void handleBtnStartSlideshow(ActionEvent event) {
-        Runnable slideshow = new Slideshow(imageView, images);
+        Runnable slideshow = new Slideshow(imageView, images, lblFilename, filenames);
         executor = Executors.newSingleThreadExecutor();
         //Use ExecutorService to create a thread.
         executor.submit(slideshow);
@@ -98,16 +103,18 @@ public class MainViewController implements Initializable {
     }
 
     @FXML
-    private void handleBtnLoadAction(ActionEvent event) {
+    private void handleBtnLoadAction(ActionEvent event
+    ) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select image files");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images",
+        fileChooser.getExtensionFilters().add(new ExtensionFilter("Images",
                 "*.png", "*.jpg", "*.gif", "*.tif", "*.bmp"));
         List<File> files = fileChooser.showOpenMultipleDialog(new Stage());
 
         if (!files.isEmpty()) {
             files.forEach((File f)
                     -> {
+                filenames.add(f.getName());
                 images.add(new Image(f.toURI().toString()));
             });
             displayImage();
@@ -115,7 +122,8 @@ public class MainViewController implements Initializable {
     }
 
     @FXML
-    private void handleBtnPreviousAction(ActionEvent event) {
+    private void handleBtnPreviousAction(ActionEvent event
+    ) {
         {
             if (!images.isEmpty()) {
                 currentImageIndex = (currentImageIndex - 1 + images.size()) % images.size();
@@ -125,7 +133,8 @@ public class MainViewController implements Initializable {
     }
 
     @FXML
-    private void handleBtnNextAction(ActionEvent event) {
+    private void handleBtnNextAction(ActionEvent event
+    ) {
         if (!images.isEmpty()) {
             currentImageIndex = (currentImageIndex + 1) % images.size();
             displayImage();
