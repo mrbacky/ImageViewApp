@@ -32,33 +32,12 @@ public class Slideshow implements Runnable {
     @Override
     public void run() {
         if (!images.isEmpty()) {
-            try {
-                while (!Thread.currentThread().isInterrupted()) {
-                    Platform.runLater(() -> {
-                        imageView.setImage(images.get(index));
-                        lblFilename.setText(filenames.get(index));
-                    });
-                    index = (index + 1) % images.size();
-                    //Thread.sleep(1000);
-                    TimeUnit.SECONDS.sleep(DELAY);
-                    //When sleeping, the thread goes to the blocking stage.
-                }
-            } catch (InterruptedException ex) {
-                System.out.println("The slide show was stopped.");
-            }
+            Platform.runLater(() -> {
+                imageView.setImage(images.get(index));
+                lblFilename.setText(filenames.get(index));
+            });
+            index = (index + 1) % images.size();
         }
     }
 
-//    @Override
-//    public void run() {
-//        if (!images.isEmpty()) {
-//            while (!Thread.currentThread().isInterrupted()) {
-//                Platform.runLater(() -> {
-//                    imageView.setImage(images.get(index));
-//                    index = (index + 1) % images.size();
-//                });
-//
-//            }
-//        }
-//    }
 }

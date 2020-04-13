@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,22 +50,13 @@ public class MainViewController implements Initializable {
     private final List<Image> images = new ArrayList<>();
     private final List<String> filenames = new ArrayList<>();
     private int currentImageIndex = 0;
-    private ExecutorService executor;
+    private ScheduledExecutorService executor;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-//        btnLoad.setOnAction((ActionEvent event) -> {
-//            handleBtnLoadAction(event);
-//        });
-//        btnPrevious.setOnAction((ActionEvent event) -> {
-//            handleBtnPreviousAction(event);
-//        });
-//        btnNext.setOnAction((ActionEvent event) -> {
-//            handleBtnNextAction(event);
-//        });
     }
 
     private void displayImage() {
@@ -76,35 +68,23 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void handleBtnStartSlideshow(ActionEvent event) {
+
         Runnable slideshow = new Slideshow(imageView, images, lblFilename, filenames);
-        executor = Executors.newSingleThreadExecutor();
-        //Use ExecutorService to create a thread.
-        executor.submit(slideshow);
-        //Add the task to the thread.
-    }
-
-    @FXML
-    private void handleBtnStopSlideshow(ActionEvent event) {
+        executor = Executors.newSingleThreadScheduledExecutor();
         try {
-            executor.shutdown();
-            //Waits for thread to finish and then shuts down.
-            //However, it will never finish, because it is an infinite loop.
-            executor.awaitTermination(1, TimeUnit.SECONDS);
-            //Wait for 3 seconds and kills the thread.            
-        } catch (InterruptedException ex) {
-            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
-
-        } finally {
-            if (!executor.isTerminated()) {
-                executor.shutdownNow();
-                //Check if the thread has been terminated and if it hasn't then force it to.
-            }
+            executor.scheduleAtFixedRate(slideshow, 1, 1, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
     @FXML
-    private void handleBtnLoadAction(ActionEvent event
-    ) {
+    private void handleBtnStopSlideshow(ActionEvent event) {
+        executor.shutdown();
+    }
+
+    @FXML
+    private void handleBtnLoadAction(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select image files");
         fileChooser.getExtensionFilters().add(new ExtensionFilter("Images",
@@ -112,8 +92,7 @@ public class MainViewController implements Initializable {
         List<File> files = fileChooser.showOpenMultipleDialog(new Stage());
 
         if (!files.isEmpty()) {
-            files.forEach((File f)
-                    -> {
+            files.forEach((File f) -> {
                 filenames.add(f.getName());
                 images.add(new Image(f.toURI().toString()));
             });
@@ -122,23 +101,20 @@ public class MainViewController implements Initializable {
     }
 
     @FXML
-    private void handleBtnPreviousAction(ActionEvent event
-    ) {
-        {
-            if (!images.isEmpty()) {
-                currentImageIndex = (currentImageIndex - 1 + images.size()) % images.size();
-                displayImage();
-            }
+    private void handleBtnPreviousAction(ActionEvent event) {
+        if (!images.isEmpty()) {
+            currentImageIndex = (currentImageIndex - 1 + images.size()) % images.size();
+            displayImage();
         }
+
     }
 
     @FXML
-    private void handleBtnNextAction(ActionEvent event
-    ) {
+    private void handleBtnNextAction(ActionEvent event) {
         if (!images.isEmpty()) {
             currentImageIndex = (currentImageIndex + 1) % images.size();
             displayImage();
         }
-    }
 
+    }
 }
