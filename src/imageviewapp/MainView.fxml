@@ -25,8 +25,8 @@
                      </opaqueInsets>
                   </Button>
                   <Button id="btnNext" fx:id="btnNext" mnemonicParsing="false" onAction="#handleBtnNextAction" text="Next" />
-                  <Button id="btnNext" fx:id="btnNext1" mnemonicParsing="false" onAction="#handleBtnStartSlideshow" text="Start slide show" />
-                  <Button id="btnNext" fx:id="btnNext2" mnemonicParsing="false" onAction="#handleBtnStopSlideshow" text="Stop slide show" />
+                  <Button id="btnNext" fx:id="btnStart" mnemonicParsing="false" onAction="#handleBtnStartSlideshow" text="Start slide show" />
+                  <Button id="btnNext" fx:id="btnStop" mnemonicParsing="false" onAction="#handleBtnStopSlideshow" text="Stop slide show" />
                </buttons>
             </ButtonBar>
             <Label fx:id="lblFilename" text="Label" />

@@ -1,9 +1,6 @@
 package imageviewapp;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -31,7 +28,7 @@ public class Slideshow implements Runnable {
 
     @Override
     public void run() {
-        if (!images.isEmpty()) {
+        if (!images.isEmpty() && !Thread.currentThread().isInterrupted()) {
             Platform.runLater(() -> {
                 imageView.setImage(images.get(index));
                 lblFilename.setText(filenames.get(index));

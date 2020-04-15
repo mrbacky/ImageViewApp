@@ -5,7 +5,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +40,9 @@ public class MainViewController implements Initializable {
     @FXML
     private ImageView imageView;
     @FXML
-    private Button btnNext1;
+    private Button btnStart;
     @FXML
-    private Button btnNext2;
+    private Button btnStop;
     @FXML
     private Label lblFilename;
 
@@ -72,7 +71,7 @@ public class MainViewController implements Initializable {
         Runnable slideshow = new Slideshow(imageView, images, lblFilename, filenames);
         executor = Executors.newSingleThreadScheduledExecutor();
         try {
-            executor.scheduleAtFixedRate(slideshow, 1, 1, TimeUnit.SECONDS);
+            executor.scheduleAtFixedRate(slideshow, 0, 1, TimeUnit.SECONDS);
         } catch (Exception e) {
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, e);
         }
@@ -80,7 +79,24 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void handleBtnStopSlideshow(ActionEvent event) {
+        // Disable new tasks from being submitted.
         executor.shutdown();
+        try {
+            // Wait 1 second for existing tasks to terminate
+            if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
+                // Cancel currently executing tasks
+                executor.shutdownNow();
+                // Wait 1 second for tasks to respond to being cancelled
+                if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
+                    System.err.println("Executor did not terminate");
+                }
+            }
+        } catch (InterruptedException ex) {
+            // (Re-)Cancel if current thread also interrupted
+            executor.shutdownNow();
+            // Preserve interrupt status
+            Thread.currentThread().interrupt();
+        }
     }
 
     @FXML
